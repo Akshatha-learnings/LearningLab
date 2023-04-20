@@ -1,1 +1,2 @@
-public class()
+public class():
+Hello
