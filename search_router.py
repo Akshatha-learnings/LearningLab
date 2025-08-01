@@ -1,46 +1,44 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import List
-from config import settings
+import os
 
 router = APIRouter(prefix="/search")
 
-# Response model
+#response model
 class FallbackTool(BaseModel):
     name: str
     description: str
     category: str
     tags: List[str]
-    solution_id: str  # Added solution_id field
+    solution_id: str
 
-
-def get_fallback_tools_data() -> List[dict]:
+# Get solution IDs from environment variables
+def get_fallback_tools():
     """
-    Get fallback tools with solution IDs from environment configuration.
+    Returns fallback tool suggestions with solution IDs from environment variables.
     """
-    return [
+    fallback_tools = [
         {
             "name": "Expedite",
             "description": "A tool to expedite processes and enhance efficiency.",
             "category": "Productivity",
             "tags": ["efficiency", "automation", "productivity"],
-            "solution_id": settings.expedite_solution_id
+            "solution_id": os.getenv("EXPEDITE_SOLUTION_ID", "default_expedite_001")
         },
         {
             "name": "Manual",
             "description": "A tool to find insights from data and provide actionable recommendations.",
             "category": "Analytics",
             "tags": ["data analysis", "insights", "recommendations"],
-            "solution_id": settings.manual_solution_id
+            "solution_id": os.getenv("MANUAL_SOLUTION_ID", "default_manual_002")
         }
     ]
-
+    return fallback_tools
 
 @router.get("/fallback", response_model=List[FallbackTool], tags=["Search"])
-def get_fallback_tools():
+def get_fallback_tools_endpoint():
     """
-    Returns fallback tool suggestions shown when the main search returns no results.
-    Solution IDs are configured via environment variables for different environments.
+     Returns fallback tool suggestions shown when the main search returns no results.
     """
-    fallback_tools = get_fallback_tools_data()
-    return fallback_tools
+    return get_fallback_tools()
